@@ -45,7 +45,7 @@ parser.add_argument('test_list', type=str)
 parser.add_argument('weights', type=str)
 parser.add_argument('--arch', type=str, default="resnet101")
 parser.add_argument('--save_scores', type=str, default='scores')
-parser.add_argument('--test_segments', type=int, default=25)
+parser.add_argument('--test_segments', type=int, default=50)
 parser.add_argument('--max_num', type=int, default=-1)
 parser.add_argument('--test_crops', type=int, default=10)
 parser.add_argument('--input_size', type=int, default=224)
@@ -131,6 +131,7 @@ if __name__ == "__main__":
         with torch.no_grad():
             rst = eval_video((i, data, label))
         print(rst[1:])
+        print(np.shape(rst[1]))
         output.append(rst[1:])
         cnt_time = time.time() - proc_start_time
         print('video {} done, total {}/{}, average {} sec/video'.format(i, i + 1,
