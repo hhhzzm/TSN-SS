@@ -33,8 +33,8 @@ def main():
         raise ValueError('Unknown dataset ' + args.dataset)
 
     model = My_model(num_class, args.num_segments, args.modality,
-                base_model=args.arch,
-                 dropout=args.dropout)
+                     base_model=args.arch,
+                     dropout=args.dropout)
 
     crop_size = model.crop_size
     scale_size = model.scale_size
@@ -113,7 +113,6 @@ def main():
     #     print(('group: {} has {} params, lr_mult: {}, decay_mult: {}'.format(
     #         group['name'], len(group['params']), group['lr_mult'], group['decay_mult'])))
 
-    print(args.lr)
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, amsgrad=True)
 
     # optimizer = torch.optim.SGD(policies,
@@ -173,6 +172,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # compute output
         output = model(input_var)
         loss = criterion(output, target_var)
+        # print(loss)
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
@@ -184,6 +184,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
         optimizer.zero_grad()
 
         loss.backward()
+
+        # for name, parms in model.named_parameters():
+        #    print('-->name:', name, '-->grad_requirs:', parms.requires_grad)
+        #    try:
+        #        print('-->grad_value:', torch.mean(parms.grad))
+        #    except TypeError:
+        #        print("~~", parms.grad)
 
         if args.clip_gradient is not None:
             total_norm = clip_grad_norm(model.parameters(), args.clip_gradient)
@@ -285,7 +292,7 @@ def adjust_learning_rate(optimizer, epoch, lr_steps):
     lr = args.lr * decay
     # decay = args.weight_decay
     for param_group in optimizer.param_groups:
-        param_group['lr'] = lr * param_group['lr']
+        param_group['lr'] = lr
         # param_group['weight_decay'] = decay * param_group['decay_mult']
 
 

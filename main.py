@@ -170,6 +170,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
         output = model(input_var)
         loss = criterion(output, target_var)
 
+        print(loss)
+
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
         losses.update(loss.data.item(), input.size(0))
@@ -180,6 +182,14 @@ def train(train_loader, model, criterion, optimizer, epoch):
         optimizer.zero_grad()
 
         loss.backward()
+
+        for name, parms in model.named_parameters():
+            print('-->name:', name, '-->grad_requirs:', parms.requires_grad, )
+            try:
+                print('-->grad_value:', torch.mean(parms.grad))
+            except TypeError:
+                print("~~", parms.grad)
+
 
         if args.clip_gradient is not None:
             total_norm = clip_grad_norm(model.parameters(), args.clip_gradient)

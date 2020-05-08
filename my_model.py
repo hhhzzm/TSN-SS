@@ -4,6 +4,7 @@ from ops.basic_ops import ConsensusModule, Identity
 from transforms import *
 from torch.nn.init import normal, constant
 
+
 class Bottleneck(nn.Module):
     expansion = 4
 
@@ -46,14 +47,13 @@ class Bottleneck(nn.Module):
 class My_model(nn.Module):
     def __init__(self, num_class, num_segments, modality,
                  base_model='resnet50', new_length=None,
-                 dropout=0.8,):
+                 dropout=0.8, ):
         super(My_model, self).__init__()
         self.modality = modality
         self.num_segments = num_segments
         self.dropout = dropout
         self.softmax = nn.Softmax()
         self.input_size = 224
-
 
         if new_length is None:
             self.new_length = 1 if modality == "RGB" else 5
@@ -86,7 +86,6 @@ TSN Configurations:
             self.dropout1 = nn.Dropout(p=self.dropout)
         self.fc1 = nn.Linear(256 * Bottleneck.expansion, num_class)
 
-
     def _prepare_my_model(self, base_model):
 
         pretrained_model = torchvision.models.resnet34(pretrained=True)
@@ -95,20 +94,28 @@ TSN Configurations:
 
         return model
 
-
     def forward(self, input):
 
-        x1 = input[:, :3]
-        x2 = input[:, 3:6]
-        x3 = input[:, 6:]
+        # x1 = input[:, :3]
+        # x2 = input[:, 3:6]
+        # x3 = input[:, 6:]
+        x1, x2, x3 = torch.split(input, 3, dim=1)
+
         x1 = self.branch1(x1)
         x1 = self.compact_cov1(x1)
-        x2 = self.branch1(x2)
-        x2 = self.compact_cov1(x2)
-        x3 = self.branch1(x3)
-        x3 = self.compact_cov1(x3)
+        x2 = self.branch2(x2)
+        x2 = self.compact_cov2(x2)
+        x3 = self.branch3(x3)
+        x3 = self.compact_cov3(x3)
+
+        # print("x1:", np.shape(x1))
+        # print("x2:", np.shape(x2))
+        # print("x3:", np.shape(x3))
 
         x = torch.cat([x1, x2, x3], dim=1)
+        x.retain_grad()
+
+        # print("x:", np.shape(x))
         x = self.compact_res_layer(x)
         x = self.pooling1(x)
 
@@ -119,8 +126,6 @@ TSN Configurations:
         x = self.softmax(x)
 
         return x
-
-
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
