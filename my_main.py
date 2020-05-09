@@ -185,19 +185,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         loss.backward()
 
-        # for name, parms in model.named_parameters():
-        #    print('-->name:', name, '-->grad_requirs:', parms.requires_grad)
-        #    try:
-        #        print('-->grad_value:', torch.mean(parms.grad))
-        #    except TypeError:
-        #        print("~~", parms.grad)
-
         if args.clip_gradient is not None:
             total_norm = clip_grad_norm(model.parameters(), args.clip_gradient)
             if total_norm > args.clip_gradient:
                 print("clipping gradient: {} with coef {}".format(total_norm, args.clip_gradient / total_norm))
 
         optimizer.step()
+        print(loss)
 
         # measure elapsed time
         batch_time.update(time.time() - end)
@@ -212,6 +206,12 @@ def train(train_loader, model, criterion, optimizer, epoch):
                    'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
                 epoch, i, len(train_loader), batch_time=batch_time,
                 data_time=data_time, loss=losses, top1=top1, top5=top5, lr=optimizer.param_groups[-1]['lr'])))
+            # for name, parms in model.named_parameters():
+            #    print('-->name:', name, '-->grad_requirs:', parms.requires_grad, "-->paras:", parms)
+            #    try:
+            #        print('-->grad_value:', torch.mean(parms.grad))
+            #    except TypeError:
+            #        print("~~", parms.grad)
 
 
 def validate(val_loader, model, criterion, iter, logger=None):

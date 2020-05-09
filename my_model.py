@@ -2,6 +2,7 @@ from torch import nn
 
 from ops.basic_ops import ConsensusModule, Identity
 from transforms import *
+import torch.nn.functional as F
 from torch.nn.init import normal, constant
 
 
@@ -113,7 +114,6 @@ TSN Configurations:
         # print("x3:", np.shape(x3))
 
         x = torch.cat([x1, x2, x3], dim=1)
-        x.retain_grad()
 
         # print("x:", np.shape(x))
         x = self.compact_res_layer(x)
@@ -123,7 +123,7 @@ TSN Configurations:
         if self.dropout > 0:
             x = self.dropout1(x)
         x = self.fc1(x)
-        x = self.softmax(x)
+        #x = self.softmax(x)
 
         return x
 
